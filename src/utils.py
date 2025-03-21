@@ -1,4 +1,7 @@
 import os
+import matplotlib.pyplot as plt
+import numpy as np
+from typing import Tuple
 
 def get_path_to(
     *args,
@@ -31,3 +34,16 @@ def get_path_to(
         os.makedirs(parent_dir)
     
     return path
+
+def show_image(
+    img: np.ndarray,
+    showAxis: bool = False,
+    size: Tuple[int, int] = (20, 10)
+) -> None:
+    plt.figure(figsize=size)
+    if not showAxis:
+        plt.axis('off')
+    if len(img.shape) == 3:
+        plt.imshow(img[:,:,::-1])
+    else:
+        plt.imshow(img, cmap='gray')
