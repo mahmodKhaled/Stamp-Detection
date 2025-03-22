@@ -24,13 +24,13 @@ class StampDetector:
         colored_only = cv2.bitwise_and(image, image, mask=color_mask)
         return colored_only
 
-    def apply_segment_mask(
+    def apply_mask(
         self,
         original_img: np.ndarray,
-        segmented_img: np.ndarray
+        mask: np.ndarray
     ) -> np.ndarray:
         # Convert segmented image to grayscale to create a binary mask
-        gray = cv2.cvtColor(segmented_img, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
         # Create binary mask where non-black pixels are 255 (white)
         _, binary_mask = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
