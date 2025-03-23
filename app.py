@@ -8,13 +8,14 @@ def detctor_pipeline(
 ) -> np.ndarray:
     detector = StampDetector()
 
-    edges_image = detector.detect_edges(image)
-    contours_image = detector.detect_contours(edges_image, image.shape)
-    contours_masked_image = detector.apply_mask(image, contours_image)
+    calibrated_image = detector.calibrate_colors(image)
+    edges_image = detector.detect_edges(calibrated_image)
+    contours_image = detector.detect_contours(edges_image, calibrated_image.shape)
+    contours_masked_image = detector.apply_mask(calibrated_image, contours_image)
     segmented_image = detector.segment(contours_masked_image)
-    segmented_masked_image = detector.apply_mask(image, segmented_image)
+    segmented_masked_image = detector.apply_mask(calibrated_image, segmented_image)
     merged_image = detector.merge_connected_components(segmented_masked_image)
-    merged_masked_image = detector.apply_mask(image, merged_image)
+    merged_masked_image = detector.apply_mask(calibrated_image, merged_image)
     detected_image = detector.draw_bounding_boxes(image, merged_masked_image)
     
     return detected_image

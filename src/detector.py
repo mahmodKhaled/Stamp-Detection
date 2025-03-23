@@ -7,7 +7,46 @@ class StampDetector:
         self,
     ) -> None:
         pass
-    
+
+    def calibrate_colors(
+        self,
+        image: np.ndarray
+    ) -> np.ndarray:
+        # Step 1: Convert to LAB color space for better light adjustment
+        lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+        l, a, b = cv2.split(lab)
+
+        # Step 2: Apply CLAHE to L-channel (contrast limited adaptive histogram equalization)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        l_eq = clahe.apply(l)
+
+        # Step 3: Merge and convert back to BGR
+        lab_eq = cv2.merge((l_eq, a, b))
+        corrected = cv2.cvtColor(lab_eq, cv2.COLOR_LAB2BGR)
+
+        # Step 4: Apply color balance to stretch BGR channels
+        balanced = self._stretch_color_channels(corrected)
+
+        return balanced
+
+    def _stretch_color_channels(
+        self,
+        image: np.ndarray
+    ) -> np.ndarray:
+        out = np.zeros_like(image)
+        for i in range(3):  # For B, G, R
+            channel = image[:, :, i]
+            min_val = np.percentile(channel, 1)
+            max_val = np.percentile(channel, 99)
+
+            # Avoid division by zero
+            if max_val - min_val > 0:
+                channel_stretched = np.clip((channel - min_val) * 255.0 / (max_val - min_val), 0, 255)
+            else:
+                channel_stretched = channel
+            out[:, :, i] = channel_stretched.astype(np.uint8)
+        return out
+
     def detect_edges(
         self,
         image: np.ndarray,
