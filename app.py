@@ -1,11 +1,3 @@
-"""
-let's create a simple web app to detect stamps in an image
-
-the app should have the following features:
-- upload an image
-- detect stamps in the image
-- display the image with stamps detected
-"""
 import streamlit as st
 import cv2
 import numpy as np
@@ -16,7 +8,10 @@ def detctor_pipeline(
 ) -> np.ndarray:
     detector = StampDetector()
 
-    segmented_image = detector.segment(image)
+    edges_image = detector.detect_edges(image)
+    contours_image = detector.detect_contours(edges_image, image.shape)
+    contours_masked_image = detector.apply_mask(image, contours_image)
+    segmented_image = detector.segment(contours_masked_image)
     segmented_masked_image = detector.apply_mask(image, segmented_image)
     merged_image = detector.merge_connected_components(segmented_masked_image)
     merged_masked_image = detector.apply_mask(image, merged_image)
