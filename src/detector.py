@@ -7,6 +7,41 @@ class StampDetector:
         self,
     ) -> None:
         pass
+    
+    def detect_edges(
+        self,
+        image: np.ndarray,
+        sigma: float = 0.33
+    ) -> np.ndarray:
+        # Convert to Grayscale
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # Find edges using canny edge detector
+        v = np.median(gray)
+        lower = int(max(0, (1.0 - sigma) * v))
+        upper = int(min(255, (1.0 + sigma) * v))
+        edged = cv2.Canny(gray, lower, upper)
+
+        return edged
+    
+    def detect_contours(
+        self,
+        image: np.ndarray,
+        image_shape: tuple
+    ) -> np.ndarray:
+        # Find contours from the edged image
+        contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Create a blank mask with same height and width as the original image
+        mask = np.zeros(image_shape[:2], dtype=np.uint8)  # grayscale mask
+
+        # Draw contours on the mask - filled
+        cv2.drawContours(mask, contours, -1, (255), thickness=cv2.FILLED)
+
+        # Convert single-channel mask to 3-channel for apply_mask
+        mask_3channel = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+
+        return mask_3channel
 
     def segment(
         self,
@@ -16,7 +51,7 @@ class StampDetector:
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
         # Define HSV thresholds to isolate non-B/W (i.e., colored regions)
-        lower_color = np.array([0, 50, 50])
+        lower_color = np.array([0, 55, 55])
         upper_color = np.array([180, 255, 255])
         color_mask = cv2.inRange(hsv, lower_color, upper_color)
 

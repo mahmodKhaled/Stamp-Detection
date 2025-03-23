@@ -1,7 +1,8 @@
 import os
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import Tuple
+from typing import Tuple, List
 
 def get_path_to(
     *args,
@@ -47,3 +48,16 @@ def show_image(
         plt.imshow(img[:,:,::-1])
     else:
         plt.imshow(img, cmap='gray')
+
+def get_index_of_image_from_name(
+    name: str,
+    image_names: List[str]
+) -> int:
+    return image_names.index(name)
+
+def imread(
+    path: str
+) -> np.ndarray:
+    img = plt.imread(path)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    return img
