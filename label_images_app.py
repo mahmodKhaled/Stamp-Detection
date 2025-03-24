@@ -5,7 +5,7 @@ import streamlit as st
 from matplotlib import pyplot as plt
 from matplotlib import patches
 from src.detector import StampDetector
-from src.utils import get_path_to, imread, get_bounding_boxes, save_yolo_label
+from src.utils import get_path_to, imread, get_bounding_boxes, save_yolo_label, rename_images
 
 
 def detector_pipeline(
@@ -36,7 +36,8 @@ def main():
     
     # Get list of images
     images = sorted([f for f in os.listdir(dataset_path) if f.lower().endswith(('.png', '.jpg', '.jpeg'))])
-    
+    images = rename_images(images, dataset_path)
+
     # Initialize counter in session state if not exists
     if 'current_index' not in st.session_state:
         st.session_state.current_index = 0

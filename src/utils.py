@@ -112,3 +112,19 @@ def get_bounding_boxes(
         x, y, w, h = cv2.boundingRect(cnt)
         boxes.append((x, y, x + w, y + h))
     return boxes
+
+def rename_images(
+    images: List[str],
+    dataset_path: str
+) -> List[str]:
+    if all(os.path.splitext(image)[0].isdigit() for image in images):
+        return images
+    
+    new_images = []
+
+    for i, image in enumerate(images):
+        image_ext = os.path.splitext(image)[1]
+        os.rename(os.path.join(dataset_path, image), os.path.join(dataset_path, f"{i}{image_ext}"))
+        new_images.append(f"{i}{image_ext}")
+
+    return new_images
