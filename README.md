@@ -95,7 +95,49 @@ streamlit run app.py
 streamlit run label_images_app.py
 ```
 
-## How the Image Processing based Algorithm Works
+## How the Stamp Detection Algorithm Works (Classic Image Processing Techniques based)
+
+The stamp detection algorithm leverages a sequence of image processing techniques to identify and isolate stamp-like objects within scanned documents or images. The process is designed to be robust to varying lighting conditions, noise, and different stamp shapes (circular, elliptical, or rectangular). Here's a step-by-step breakdown of how it works:
+
+### 1. **Color Calibration**
+The pipeline starts by calibrating the image colors using the **calibrate_colors** method:
+
+- The image is converted to the LAB color space to better isolate luminance.
+
+- Contrast Limited Adaptive Histogram Equalization (CLAHE) is applied to the luminance channel to enhance contrast.
+
+- The image is converted back to BGR and undergoes color channel stretching to improve overall color balance and clarity.
+
+### 2. **Edge Detection**
+
+Using the **Canny edge detector**, the algorithm extracts sharp boundaries from the grayscale version of the image. A dynamic thresholding mechanism (based on the median intensity) ensures adaptability to various image contrasts.
+
+### 3. **Contour Detection**
+
+Contours are extracted from the edge map using OpenCV's contour detection method. These contours are drawn onto a binary mask to localize candidate stamp regions.
+
+### 4. **Color-Based Segmentation**
+
+To isolate actual stamps (often colored), the algorithm converts the image to HSV color space and filters out non-colored (grayscale or black/white) areas. This helps in discarding irrelevant background content.
+
+### 5. **Mask Application**
+
+The color-segmented image is used to create a binary mask that is applied to the original image. The non-stamp areas are replaced with a white background, visually highlighting the regions of interest.
+
+### 6. **Merging Connected Components**
+
+Morphological operations (specifically closing with an elliptical kernel) are used to merge fragmented components of stamps, making it easier to detect complete stamp shapes.
+
+### 7. **Valid Contour Selection**
+
+The **_get_valid_contours** method filters out noise by selecting only those contours that:
+
+- Exceed a minimum area threshold.
+- Match the expected geometric features of stamps that might be (circular, elliptical, or rectangular).
+
+### 8. **Bounding Box Drawing**
+
+Finally, the algorithm draws bounding boxes around the valid contours. This visual overlay clearly marks detected stamps and labels them with a class name **Stamp**.
 
 ## YOLO Model Training Pipeline
 
@@ -103,7 +145,7 @@ The YOLO-based model was trained using a carefully curated subset of images from
 
 Here's how the training process was carried out:
 
-- We started with a dataset of **1,000 raw document images** from [Kaggle](https://www.kaggle.com/datasets/igorkarayman/signatures-and-stamps/data).
+- We started with a dataset of **1,000 raw document images** from [Signatures and Stamps](https://www.kaggle.com/datasets/igorkarayman/signatures-and-stamps/data).
 - To generate labeled data, we used the `label_images_app.py` Streamlit application, which automatically detects stamps using an image-processing-based algorithm.
 - This automated labeling tool was run across the full dataset. From those, **300 high-quality images** were selected where the detections were very accurate.
 - The selected 300 images were converted to **YOLO format** annotations.
