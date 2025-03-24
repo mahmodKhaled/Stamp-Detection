@@ -74,12 +74,12 @@ def imread(
     return img
 
 def convert_to_yolo_format(
-    x_min: int,
-    y_min: int,
-    x_max: int,
-    y_max: int,
-    img_width: int,
-    img_height: int
+    x_min: float,
+    y_min: float,
+    x_max: float,
+    y_max: float,
+    img_width: float,
+    img_height: float
 ) -> Tuple[float, float, float, float]:
     x_center = (x_min + x_max) / 2.0 / img_width
     y_center = (y_min + y_max) / 2.0 / img_height
@@ -89,9 +89,9 @@ def convert_to_yolo_format(
 
 def save_yolo_label(
     file_path: str,
-    boxes: List[Tuple[int, int, int, int]],
-    img_width: int,
-    img_height: int,
+    boxes: List[Tuple[float, float, float, float]],
+    img_width: float,
+    img_height: float,
     class_id: int = 0
 ) -> None:
     with open(file_path, 'w') as f:
