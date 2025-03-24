@@ -60,6 +60,16 @@ def imread(
     path: str
 ) -> np.ndarray:
     img = plt.imread(path)
+
+    # If image is float convert to uint8
+    if img.dtype == np.float32 or img.dtype == np.float64:
+        img = (img * 255).astype(np.uint8)
+
+    # Handle alpha channel if present
+    if img.shape[-1] == 4:
+        img = img[:, :, :3]
+
+    # Convert RGB (matplotlib default) to BGR for OpenCV
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     return img
 
