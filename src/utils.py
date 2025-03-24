@@ -3,6 +3,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import Tuple, List
+from src.detector import StampDetector
 
 def get_path_to(
     *args,
@@ -61,3 +62,43 @@ def imread(
     img = plt.imread(path)
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     return img
+
+def convert_to_yolo_format(
+    x_min: int,
+    y_min: int,
+    x_max: int,
+    y_max: int,
+    img_width: int,
+    img_height: int
+) -> Tuple[float, float, float, float]:
+    x_center = (x_min + x_max) / 2.0 / img_width
+    y_center = (y_min + y_max) / 2.0 / img_height
+    width = (x_max - x_min) / img_width
+    height = (y_max - y_min) / img_height
+    return x_center, y_center, width, height
+
+def save_yolo_label(
+    file_path: str,
+    boxes: List[Tuple[int, int, int, int]],
+    img_width: int,
+    img_height: int,
+    class_id: int = 0
+) -> None:
+    with open(file_path, 'w') as f:
+        for (x_min, y_min, x_max, y_max) in boxes:
+            x_c, y_c, w, h = convert_to_yolo_format(x_min, y_min, x_max, y_max, img_width, img_height)
+            f.write(f"{class_id} {x_c:.6f} {y_c:.6f} {w:.6f} {h:.6f}\n")
+
+def get_bounding_boxes(
+    detector: StampDetector,
+    detected_img: np.ndarray
+) -> List[Tuple[int, int, int, int]]:
+    gray = cv2.cvtColor(detected_img, cv2.COLOR_BGR2GRAY)
+    _, mask = cv2.threshold(gray, 254, 255, cv2.THRESH_BINARY_INV)
+    final_contours = detector._get_valid_contours(mask)
+    
+    boxes = []
+    for cnt in final_contours:
+        x, y, w, h = cv2.boundingRect(cnt)
+        boxes.append((x, y, x + w, y + h))
+    return boxes
