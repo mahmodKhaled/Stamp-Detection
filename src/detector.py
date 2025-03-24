@@ -12,6 +12,19 @@ class StampDetector:
         self,
         image: np.ndarray
     ) -> np.ndarray:
+        """
+        This function calibrates the colors of the image to enhance the quality of the image.
+
+        Parameters
+        ----------
+        image : np.ndarray
+            The image to calibrate.
+        
+        Returns
+        -------
+        balanced : np.ndarray
+            The calibrated image.
+        """
         # Step 1: Convert to LAB color space for better light adjustment
         lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
         l, a, b = cv2.split(lab)
@@ -33,6 +46,19 @@ class StampDetector:
         self,
         image: np.ndarray
     ) -> np.ndarray:
+        """
+        This function stretches the color channels of the image to enhance the quality of the image.
+
+        Parameters
+        ----------
+        image : np.ndarray
+            The image to stretch.
+        
+        Returns
+        -------
+        out : np.ndarray
+            The stretched image.
+        """
         out = np.zeros_like(image)
         for i in range(3):  # For B, G, R
             channel = image[:, :, i]
@@ -52,6 +78,22 @@ class StampDetector:
         image: np.ndarray,
         sigma: float = 0.33
     ) -> np.ndarray:
+        """
+        This function detects the edges of the image using the canny edge detector.
+
+        Parameters
+        ----------
+        image : np.ndarray
+            The image to detect edges in.
+        
+        sigma : float
+            The sigma value for the canny edge detector.
+        
+        Returns
+        -------
+        edged : np.ndarray
+            The edges of the image.
+        """
         # Convert to Grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -68,6 +110,22 @@ class StampDetector:
         image: np.ndarray,
         image_shape: tuple
     ) -> np.ndarray:
+        """
+        This function detects the contours of the image by taking the edged image.
+
+        Parameters
+        ----------
+        image : np.ndarray
+            The image to detect contours in.
+        
+        image_shape : tuple
+            The shape of the image.
+        
+        Returns
+        -------
+        mask_3channel : np.ndarray
+            The mask of the image.
+        """
         # Find contours from the edged image
         contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -86,6 +144,19 @@ class StampDetector:
         self,
         image: np.ndarray
     ) -> np.ndarray:
+        """
+        This function segments the image by isolating the colored regions.
+
+        Parameters
+        ----------
+        image : np.ndarray
+            The image to segment.
+        
+        Returns
+        -------
+        colored_only : np.ndarray
+            The segmented image.
+        """
         # Convert to HSV
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -103,6 +174,22 @@ class StampDetector:
         original_img: np.ndarray,
         mask: np.ndarray
     ) -> np.ndarray:
+        """
+        This function acts as a filter to the image by applying a mask to it.
+
+        Parameters
+        ----------
+        original_img : np.ndarray
+            The image to apply the mask to.
+        
+        mask : np.ndarray
+            The mask to apply to the image.
+        
+        Returns
+        -------
+        masked_output : np.ndarray
+            The masked image.
+        """
         # Convert segmented image to grayscale to create a binary mask
         gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
 
@@ -128,6 +215,23 @@ class StampDetector:
         segmented_img: np.ndarray,
         kernel_size: int = 25
     ) -> np.ndarray:
+        """
+        This function merges the connected components of the image by using a morphological closing,
+        to close the area inside the edges of the stamps.
+
+        Parameters
+        ----------
+        segmented_img : np.ndarray
+            The segmented image.
+        
+        kernel_size : int
+            The size of the kernel to use for the morphological closing.
+        
+        Returns
+        -------
+        merged_mask_colored : np.ndarray
+            The merged mask of the image.
+        """
         # Convert segmented image to grayscale
         gray = cv2.cvtColor(segmented_img, cv2.COLOR_BGR2GRAY)
 
@@ -150,6 +254,25 @@ class StampDetector:
         mask: np.ndarray,
         min_area: int = 1000
     ) -> List[np.ndarray]:
+        """
+        This function identifies the contours of the image that are valid stamps which are following:
+        - circular
+        - elliptical
+        - rectangular
+
+        Parameters
+        ----------
+        mask : np.ndarray
+            The mask of the image.
+
+        min_area : int
+            The minimum area of the contour to be considered a valid stamp.
+        
+        Returns
+        -------
+        final_contours : List[np.ndarray]
+            The contours of the image that are valid stamps.
+        """
         # Find contours in the mask
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -171,6 +294,31 @@ class StampDetector:
         color: Tuple[int, int, int] = (0, 255, 0),
         thickness: int = 2
     ) -> np.ndarray:
+        """
+        This function draws the bounding boxes of the detected stamps in the image.
+
+        Parameters
+        ----------
+        original_img : np.ndarray
+            The original image.
+        
+        segmented_img : np.ndarray
+            The segmented image.
+        
+        class_name : str
+            The name of the class.
+        
+        color : Tuple[int, int, int]
+            The color of the bounding box.
+        
+        thickness : int
+            The thickness of the bounding box.
+        
+        Returns
+        -------
+        output_img : np.ndarray
+            The image with the bounding boxes drawn on it of the detected stamps.
+        """
         # Convert segmented image to grayscale
         gray = cv2.cvtColor(segmented_img, cv2.COLOR_BGR2GRAY)
 
