@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from typing import Tuple, List
 from src.detector import StampDetector
+import pandas as pd
+import shutil
+
 
 def get_path_to(
     *args,
@@ -128,3 +131,19 @@ def rename_images(
         new_images.append(f"{i}{image_ext}")
 
     return new_images
+
+def create_yolo_dataset(
+    df: pd.DataFrame,
+    dataset_path: str,
+    yolo_dataset_path: str,
+    split_type: str
+) -> None:
+    for _, row in df.iterrows():
+        shutil.copy(
+            os.path.join(dataset_path, row['images']), 
+            os.path.join(yolo_dataset_path, 'images', split_type, row['images'])
+        )
+        shutil.copy(
+            os.path.join(dataset_path, row['labels']),
+            os.path.join(yolo_dataset_path, 'labels', split_type, row['labels'])
+        )
