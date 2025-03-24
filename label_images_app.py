@@ -12,6 +12,32 @@ def detector_pipeline(
     detector: StampDetector,
     image: np.ndarray,
 ) -> np.ndarray:
+    """
+    This function is the pipeline for the stamp detection.
+
+    applies the following operations in the following order:
+    1. Calibrate colors
+    2. Detect edges
+    3. Detect contours
+    4. Apply mask
+    5. Segment
+    6. Apply mask
+    7. Merge connected components
+    8. Apply mask
+
+    Parameters
+    ----------
+    detector : StampDetector
+        The detector object.
+
+    image : np.ndarray
+        The image to detect stamps in.
+    
+    Returns
+    -------
+    merged_masked_image : np.ndarray
+        The image with the detected stamps.
+    """
     calibrated_image = detector.calibrate_colors(image)
     edges_image = detector.detect_edges(calibrated_image)
     contours_image = detector.detect_contours(edges_image, calibrated_image.shape)

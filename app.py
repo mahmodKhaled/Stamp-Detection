@@ -11,6 +11,30 @@ MODEL_PATH = get_path_to('runs', 'detect', 'stamp_yolov8n', 'weights', 'best.pt'
 def detctor_pipeline(
     image: np.ndarray
 ) -> np.ndarray:
+    """
+    This function is the pipeline for the stamp detection.
+
+    applies the following operations in the following order:
+    1. Calibrate colors
+    2. Detect edges
+    3. Detect contours
+    4. Apply mask
+    5. Segment
+    6. Apply mask
+    7. Merge connected components
+    8. Apply mask
+    9. Draw bounding boxes
+
+    Parameters
+    ----------
+    image : np.ndarray
+        The image to detect stamps in.
+    
+    Returns
+    -------
+    detected_image : np.ndarray
+        The image with the detected stamps.
+    """
     detector = StampDetector()
 
     calibrated_image = detector.calibrate_colors(image)
@@ -29,6 +53,21 @@ def yolo_detector(
     image: np.ndarray,
     model_path: str
 ) -> Image.Image:
+    """
+    This function is the YOLO detector that detects the stamps in the image.
+
+    Parameters
+    ----------
+    image : np.ndarray
+        The image to detect stamps in.
+    model_path : str
+        The path to the YOLO model.
+    
+    Returns
+    -------
+    detected_image : Image.Image
+        The image with the detected stamps.
+    """
     model = YOLO(model_path)
     results = model(image)
     result_img = results[0].plot()
