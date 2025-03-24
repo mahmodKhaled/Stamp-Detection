@@ -141,9 +141,9 @@ def create_yolo_dataset(
     for _, row in df.iterrows():
         shutil.copy(
             os.path.join(dataset_path, row['images']), 
-            os.path.join(yolo_dataset_path, 'images', split_type, row['images'])
+            os.path.join(yolo_dataset_path, split_type, 'images', row['images'])
         )
         shutil.copy(
             os.path.join(dataset_path, row['labels']),
-            os.path.join(yolo_dataset_path, 'labels', split_type, row['labels'])
+            os.path.join(yolo_dataset_path, split_type, 'labels', row['labels'])
         )
