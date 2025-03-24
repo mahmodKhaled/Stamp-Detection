@@ -62,8 +62,63 @@ This Streamlit tool labels images using the image-processing-based stamp detecto
 streamlit run label_images_app.py
 ```
 
+## Alternative Installation
 
+1. Export dependencies from Poetry to requirements.txt
 
+```bash
+poetry export -f requirements.txt --output requirements.txt
+```
 
+2. Create and activate a virtual environment using Python
 
+```bash
+python -m venv venv
+source venv/bin/activate
+```
 
+3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Run the main application
+
+```bash
+streamlit run app.py
+```
+
+5. Run the automated labeling tool
+
+```bash
+streamlit run label_images_app.py
+```
+
+## How the Image Processing based Algorithm Works
+
+## YOLO Model Training Pipeline
+
+The YOLO-based model was trained using a carefully curated subset of images from the original Kaggle dataset.
+
+Here's how the training process was carried out:
+
+- We started with a dataset of **1,000 raw document images** from [Kaggle](https://www.kaggle.com/datasets/igorkarayman/signatures-and-stamps/data).
+- To generate labeled data, we used the `label_images_app.py` Streamlit application, which automatically detects stamps using an image-processing-based algorithm.
+- This automated labeling tool was run across the full dataset. From those, **300 high-quality images** were selected where the detections were very accurate.
+- The selected 300 images were converted to **YOLO format** annotations.
+- The dataset was then split into **80% training** and **20% validation** sets.
+- We trained a `YOLOv8n` (YOLOv8 nano) model on this curated dataset.
+
+### Training Results
+
+After training, we evaluated the model using various metrics and visualizations:
+
+1. **Confusion Matrix** – Shows true positives, false positives, etc.
+![Confusion Matrix](./runs/detect/stamp_yolov8n/confusion_matrix.png)
+2. **Training & Validation Metrics** – Includes precision, recall, mAP, and loss curves.
+![Training & Validation Metrics](./runs/detect/stamp_yolov8n/results.png)
+3. **Sample Predictions** – Visual samples of batch predictions on the validation set.
+![Sample Predictions](./runs/detect/stamp_yolov8n/val_batch0_pred.jpg)
+
+All training artifacts including model weights, logs, and evaluation plots are saved in the [`runs`](./runs) directory.
